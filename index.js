@@ -8,9 +8,9 @@ const transport = axios.create({
 let processing = false;
 
 const reactions = {
-  prideFlag: '%F0%9F%8F%B3%EF%B8%8F%E2%80%8D%F0%9F%8C%88',
-  grin: '%F0%9F%98%81',
-  cry: '%F0%9F%98%A2',
+  prideFlag: '🏳️‍🌈',
+  grin: '😁',
+  cry: '😢',
 }
 
 const sleep = (duration = 1000) => new Promise(resolve => setTimeout(resolve, duration));
@@ -56,27 +56,25 @@ const init = async () => {
     // '511536251749531658',
   ];
 
-  const putReaction = async (channel, messageId, reaction) => {
+  const putReaction = async (channel, message, reaction) => {
+    if (message.reactions.some(item => item.emoji.name === reaction && item.me)) {
+      return;
+    }
     await sleep();
-    await transport.put(`https://discordapp.com/api/v6/channels/${channel}/messages/${messageId}/reactions/${reaction}/%40me`);
+    await transport.put(`https://discordapp.com/api/v6/channels/${channel}/messages/${message.id}/reactions/${encodeURI(reaction)}/%40me`);
   }
 
   const processMessage = async (channel, message) => {
     if (message.content.includes('SUCCESS')) {
-      console.log(message.content);
-      await putReaction(channel, message.id, reactions.grin);
+      await putReaction(channel, message, reactions.grin);
     } else if (message.content.includes('FAILED')) {
-      console.log(message.content);
-      await putReaction(channel, message.id, reactions.cry);
+      await putReaction(channel, message, reactions.cry);
     }
   }
 
   const processChannel = async (channel, result) => {
     const messages = result.data && result.data.length ? result.data : [];
     for(let message of messages) {
-      if (message.reactions && message.reactions.some(item => item.me)) {
-        continue;
-      }
       await processMessage(channel, message);
     }
     // if (messages.length) {
