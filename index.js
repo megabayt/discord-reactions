@@ -57,7 +57,9 @@ const init = async () => {
   ];
 
   const putReaction = async (channel, message, reaction) => {
-    if (message.reactions.some(item => item.emoji.name === reaction && item.me)) {
+    if (message
+        && message.reactions
+        && message.reactions.some(item => item.emoji.name === reaction && item.me)) {
       return;
     }
     await sleep();
