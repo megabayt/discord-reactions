@@ -17,7 +17,6 @@ const sleep = (duration = 1000) => new Promise(resolve => setTimeout(resolve, du
 
 const init = async () => {
   try {
-
     if (processing) {
       return;
     }
